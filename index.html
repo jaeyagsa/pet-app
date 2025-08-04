@@ -1,40 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>🌟 Pet Spark</title>
+  <meta charset="UTF-8" />
+  <title>🐾 Custom Pet with Accessories</title>
   <style>
     body {
       font-family: 'Comic Sans MS', cursive;
-      background: #f0f8ff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
+      background: #fffdfc;
       margin: 0;
-      overflow: hidden;
+      padding: 20px;
+      text-align: center;
+      transition: background 0.5s;
     }
 
     h1 {
       color: #ff69b4;
     }
 
-    #pet {
-      width: 120px;
-      height: 120px;
-      background-color: #b19cd9;
-      border-radius: 50%;
-      box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
-      margin: 20px;
-      transition: all 0.3s ease;
-      animation: float 2s ease-in-out infinite;
+    #pet-container {
+      position: relative;
+      width: 150px;
+      height: 150px;
+      margin: 20px auto;
     }
 
-    #pet.happy { background-color: #90ee90; }
-    #pet.hungry { background-color: #ffcccb; }
-    #pet.sleepy { background-color: #add8e6; }
-    #pet.sad { background-color: #d3d3d3; }
+    #pet {
+      width: 130px;
+      height: 130px;
+      background-color: #b19cd9;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      animation: float 2s ease-in-out infinite;
+      margin: auto;
+    }
+
+    #pet.blob {
+      border-radius: 60% 40% 60% 40% / 40% 60% 40% 60%;
+    }
+
+    #pet.star {
+      clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    }
+
+    .accessory {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      display: none;
+    }
+
+    #hat {
+      top: -10px;
+      left: 45px;
+      background: black;
+      border-radius: 5px;
+    }
+
+    #bow {
+      bottom: 0;
+      left: 45px;
+      background: pink;
+      border-radius: 50%;
+    }
+
+    #tail {
+      right: -15px;
+      top: 50px;
+      background: #6c3483;
+      border-radius: 30% 70% 70% 30%;
+    }
 
     @keyframes float {
       0% { transform: translateY(0); }
@@ -42,36 +76,79 @@
       100% { transform: translateY(0); }
     }
 
-    .actions {
-      display: flex;
-      gap: 15px;
+    .controls, .backgrounds, .accessory-controls {
+      margin: 15px auto;
+      max-width: 400px;
     }
 
-    button {
+    .controls input,
+    .controls select {
+      padding: 10px;
+      margin: 10px;
+      font-size: 16px;
+    }
+
+    .actions button {
       padding: 10px 20px;
-      font-size: 18px;
-      border: none;
+      margin: 5px;
+      font-size: 16px;
       border-radius: 20px;
+      border: none;
       cursor: pointer;
-      transition: background 0.3s;
     }
 
-    button:hover {
+    .actions button:hover {
       background: #ff69b4;
       color: white;
     }
 
     #status {
-      margin-top: 10px;
-      font-size: 18px;
+      margin-top: 15px;
       font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <h1>🌟 Pet Spark</h1>
-  <div id="pet" class="happy"></div>
-  <div id="status">Your pet is feeling great!</div>
+
+  <h1>🎀 Custom Pet Designer</h1>
+
+  <div id="pet-container">
+    <div id="pet"></div>
+    <div id="hat" class="accessory"></div>
+    <div id="bow" class="accessory"></div>
+    <div id="tail" class="accessory"></div>
+  </div>
+
+  <div id="status">Let's customize your pet!</div>
+
+  <div class="controls">
+    <input type="text" id="petName" placeholder="Pet name (e.g., Sparkle)" />
+    <input type="color" id="petColor" value="#b19cd9" />
+    <select id="petShape">
+      <option value="circle">Circle</option>
+      <option value="blob">Blob</option>
+      <option value="star">Star</option>
+    </select>
+    <button onclick="savePet()">Save Pet</button>
+  </div>
+
+  <div class="accessory-controls">
+    <label><input type="checkbox" id="toggleHat" /> 🎩 Hat</label>
+    <label><input type="checkbox" id="toggleBow" /> 🎀 Bow</label>
+    <label><input type="checkbox" id="toggleTail" /> 🐾 Tail</label>
+  </div>
+
+  <div class="backgrounds">
+    <label>Background:
+      <select id="bgSelect" onchange="changeBackground()">
+        <option value="default">White</option>
+        <option value="forest">Forest</option>
+        <option value="clouds">Pastel Clouds</option>
+        <option value="galaxy">Galaxy</option>
+        <option value="night">Night Room</option>
+      </select>
+    </label>
+  </div>
 
   <div class="actions">
     <button onclick="feedPet()">🍎 Feed</button>
@@ -82,61 +159,122 @@
   <script>
     const pet = document.getElementById('pet');
     const status = document.getElementById('status');
+    const nameInput = document.getElementById('petName');
+    const colorInput = document.getElementById('petColor');
+    const shapeInput = document.getElementById('petShape');
 
-    let mood = 'happy';
-    let lastCareTime = localStorage.getItem('lastCare') || Date.now();
-    updateMood();
+    const hat = document.getElementById('hat');
+    const bow = document.getElementById('bow');
+    const tail = document.getElementById('tail');
+
+    const toggleHat = document.getElementById('toggleHat');
+    const toggleBow = document.getElementById('toggleBow');
+    const toggleTail = document.getElementById('toggleTail');
+
+    let petData = JSON.parse(localStorage.getItem('customPet')) || {
+      name: 'Spark',
+      color: '#b19cd9',
+      shape: 'circle',
+      accessories: { hat: false, bow: false, tail: false },
+      mood: 'happy',
+      background: 'default'
+    };
+
+    applyPetData();
+
+    nameInput.value = petData.name;
+    colorInput.value = petData.color;
+    shapeInput.value = petData.shape;
+    document.getElementById('bgSelect').value = petData.background;
+
+    toggleHat.checked = petData.accessories.hat;
+    toggleBow.checked = petData.accessories.bow;
+    toggleTail.checked = petData.accessories.tail;
+
+    colorInput.addEventListener('input', () => {
+      pet.style.backgroundColor = colorInput.value;
+    });
+
+    shapeInput.addEventListener('change', () => {
+      pet.className = shapeInput.value;
+    });
+
+    toggleHat.addEventListener('change', () => {
+      hat.style.display = toggleHat.checked ? 'block' : 'none';
+    });
+
+    toggleBow.addEventListener('change', () => {
+      bow.style.display = toggleBow.checked ? 'block' : 'none';
+    });
+
+    toggleTail.addEventListener('change', () => {
+      tail.style.display = toggleTail.checked ? 'block' : 'none';
+    });
+
+    function applyPetData() {
+      pet.style.backgroundColor = petData.color;
+      pet.className = petData.shape;
+      toggleHat.checked = petData.accessories.hat;
+      toggleBow.checked = petData.accessories.bow;
+      toggleTail.checked = petData.accessories.tail;
+
+      hat.style.display = petData.accessories.hat ? 'block' : 'none';
+      bow.style.display = petData.accessories.bow ? 'block' : 'none';
+      tail.style.display = petData.accessories.tail ? 'block' : 'none';
+
+      changeBackground(petData.background);
+      updateMood();
+    }
+
+    function savePet() {
+      petData.name = nameInput.value || 'Spark';
+      petData.color = colorInput.value;
+      petData.shape = shapeInput.value;
+      petData.accessories = {
+        hat: toggleHat.checked,
+        bow: toggleBow.checked,
+        tail: toggleTail.checked
+      };
+      petData.background = document.getElementById('bgSelect').value;
+      localStorage.setItem('customPet', JSON.stringify(petData));
+      applyPetData();
+      status.textContent = `${petData.name} is saved and stylin’!`;
+    }
 
     function feedPet() {
-      mood = 'happy';
-      updateStatus("Your pet is full and happy!");
-      saveCareTime();
+      petData.mood = 'happy';
+      updateMood("You fed " + petData.name + "! Yum!");
     }
 
     function playPet() {
-      mood = 'happy';
-      updateStatus("Your pet had fun playing!");
-      saveCareTime();
+      petData.mood = 'happy';
+      updateMood(petData.name + " had fun playing!");
     }
 
     function sleepPet() {
-      mood = 'sleepy';
-      updateStatus("Your pet is resting peacefully.");
-      saveCareTime();
+      petData.mood = 'sleepy';
+      updateMood(petData.name + " is now sleeping.");
     }
 
-    function updateStatus(text) {
-      status.textContent = text;
-      pet.className = mood;
+    function updateMood(text) {
+      status.textContent = text || `${petData.name} is feeling ${petData.mood}!`;
     }
 
-    function saveCareTime() {
-      lastCareTime = Date.now();
-      localStorage.setItem('lastCare', lastCareTime);
-    }
-
-    function updateMood() {
-      const now = Date.now();
-      const diff = now - lastCareTime;
-
-      if (diff > 1000 * 60 * 60 * 6) { // 6 hours
-        mood = 'sad';
-        updateStatus("Your pet is feeling neglected... 😢");
-      } else if (diff > 1000 * 60 * 60 * 3) { // 3 hours
-        mood = 'hungry';
-        updateStatus("Your pet is getting hungry...");
-      } else if (diff > 1000 * 60 * 60 * 1) { // 1 hour
-        mood = 'sleepy';
-        updateStatus("Your pet is feeling a bit tired.");
-      } else {
-        mood = 'happy';
-        updateStatus("Your pet is feeling great!");
+    function changeBackground(value) {
+      const bg = value || document.getElementById('bgSelect').value;
+      switch(bg) {
+        case 'forest':
+          document.body.style.background = 'url(https://i.imgur.com/Nlft3Rp.jpg) center/cover'; break;
+        case 'clouds':
+          document.body.style.background = 'url(https://i.imgur.com/JxfYUx1.jpg) center/cover'; break;
+        case 'galaxy':
+          document.body.style.background = 'url(https://i.imgur.com/sW9Vh4Y.jpg) center/cover'; break;
+        case 'night':
+          document.body.style.background = '#1a1a40'; break;
+        default:
+          document.body.style.background = '#fffdfc';
       }
-
-      pet.className = mood;
     }
-
-    setInterval(updateMood, 60000); // check every minute
   </script>
 </body>
 </html>
