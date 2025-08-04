@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🌟 Pet Spark</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive;
+      background: #f0f8ff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    h1 {
+      color: #ff69b4;
+    }
+
+    #pet {
+      width: 120px;
+      height: 120px;
+      background-color: #b19cd9;
+      border-radius: 50%;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+      margin: 20px;
+      transition: all 0.3s ease;
+      animation: float 2s ease-in-out infinite;
+    }
+
+    #pet.happy { background-color: #90ee90; }
+    #pet.hungry { background-color: #ffcccb; }
+    #pet.sleepy { background-color: #add8e6; }
+    #pet.sad { background-color: #d3d3d3; }
+
+    @keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0); }
+    }
+
+    .actions {
+      display: flex;
+      gap: 15px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #ff69b4;
+      color: white;
+    }
+
+    #status {
+      margin-top: 10px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌟 Pet Spark</h1>
+  <div id="pet" class="happy"></div>
+  <div id="status">Your pet is feeling great!</div>
+
+  <div class="actions">
+    <button onclick="feedPet()">🍎 Feed</button>
+    <button onclick="playPet()">🎾 Play</button>
+    <button onclick="sleepPet()">💤 Sleep</button>
+  </div>
+
+  <script>
+    const pet = document.getElementById('pet');
+    const status = document.getElementById('status');
+
+    let mood = 'happy';
+    let lastCareTime = localStorage.getItem('lastCare') || Date.now();
+    updateMood();
+
+    function feedPet() {
+      mood = 'happy';
+      updateStatus("Your pet is full and happy!");
+      saveCareTime();
+    }
+
+    function playPet() {
+      mood = 'happy';
+      updateStatus("Your pet had fun playing!");
+      saveCareTime();
+    }
+
+    function sleepPet() {
+      mood = 'sleepy';
+      updateStatus("Your pet is resting peacefully.");
+      saveCareTime();
+    }
+
+    function updateStatus(text) {
+      status.textContent = text;
+      pet.className = mood;
+    }
+
+    function saveCareTime() {
+      lastCareTime = Date.now();
+      localStorage.setItem('lastCare', lastCareTime);
+    }
+
+    function updateMood() {
+      const now = Date.now();
+      const diff = now - lastCareTime;
+
+      if (diff > 1000 * 60 * 60 * 6) { // 6 hours
+        mood = 'sad';
+        updateStatus("Your pet is feeling neglected... 😢");
+      } else if (diff > 1000 * 60 * 60 * 3) { // 3 hours
+        mood = 'hungry';
+        updateStatus("Your pet is getting hungry...");
+      } else if (diff > 1000 * 60 * 60 * 1) { // 1 hour
+        mood = 'sleepy';
+        updateStatus("Your pet is feeling a bit tired.");
+      } else {
+        mood = 'happy';
+        updateStatus("Your pet is feeling great!");
+      }
+
+      pet.className = mood;
+    }
+
+    setInterval(updateMood, 60000); // check every minute
+  </script>
+</body>
+</html>
